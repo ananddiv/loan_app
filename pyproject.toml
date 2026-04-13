@@ -1,0 +1,56 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "loan_app"
+version = "0.0.1"
+description = "you will explore how to build a predictive classification model using PySpark and its machine learning library, MLlib. Working with a real-world dataset of loan applications, your goal is to develop and evaluate models that predict loan approval outcomes based on various applicant features. This hands-on assignment is designed to give you practical experience with key stages of the machine learning pipeline in a distributed computing environment, including data preprocessing, feature engineering, model selection, and evaluationn."
+authors = [
+  { name = "Anand Divakaran" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+dependencies = [
+    "black",
+    "flake8",
+    "ipython",
+    "isort",
+    "jupyterlab",
+    "loguru",
+    "marimo>=0.23.0",
+    "matplotlib",
+    "nbformat>=5.10.4",
+    "notebook",
+    "numpy",
+    "pandas",
+    "pip",
+    "pyspark>=4.1.1",
+    "python-dotenv",
+    "scikit-learn",
+    "seaborn>=0.13.2",
+    "tqdm",
+    "typer",
+]
+requires-python = "~=3.12.0"
+
+[tool.black]
+line-length = 99
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+)/
+'''
+
+[tool.isort]
+profile = "black"
+known_first_party = ["loan_app"]
+force_sort_within_sections = true
+
+
