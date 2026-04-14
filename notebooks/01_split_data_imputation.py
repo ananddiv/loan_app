@@ -136,6 +136,19 @@ def _(train_data_df):
     return
 
 
+@app.cell
+def _(test_data_df, train_data_df):
+    train_data_df['Credit_History'] = train_data_df['Credit_History'].astype('category')
+    test_data_df['Credit_History'] = test_data_df['Credit_History'].astype('category')
+    return
+
+
+@app.cell
+def _(train_data_df):
+    train_data_df.info()
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""

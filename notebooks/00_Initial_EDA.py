@@ -507,7 +507,7 @@ def _(bar_se, df, plt):
     plt.xlabel('Credit History')
     plt.ylabel('Count')
     plt.show()
-    return
+    return (df_ch_summ,)
 
 
 @app.cell(hide_code=True)
@@ -811,7 +811,8 @@ def _(mo):
 @app.cell
 def _(df_cleaned):
     # Create a function to perfrom the binning.
-    def bucketize_income (income):
+    def bucketize_income (monthly_income):
+        income = monthly_income * 12
         if income <= 30000:
             return 'Low Income'
         elif income > 30000 and income <= 75000:
@@ -1031,10 +1032,212 @@ def _(mo):
     return
 
 
+@app.cell
+def _(df_cleaned):
+    df_cleaned.info()
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## 7. Save the data into an intermediate file
+    ## 7. EDA for the rest of the features
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### 7.1 Inference for Education
+    """)
+    return
+
+
+@app.cell
+def _(df_cleaned, plt):
+    df_ed_summ = df_cleaned.Education.value_counts().reset_index()
+    bars_ed = plt.bar(df_ed_summ['Education'], df_ed_summ['count'])
+
+    # --- Adding Labels (Annotations) to each bar ---
+    for bar_ed in bars_ed:
+        height_ed = bar_ed.get_height()
+        # Add the text label above the bar, slightly offset from the top edge
+        plt.text(
+            bar_ed.get_x() + bar_ed.get_width() / 2, # X position (center of the bar)
+            height_ed - 30,                       # Y position (slightly above the bar height)
+            f'{int(height_ed)}',                  # The text to display (the count)
+            ha='center',                       # Horizontal alignment: center
+            va='bottom',color = 'white' )       # Vertical alignment: bottom
+
+    plt.title('Education Counts')
+    plt.xlabel('Education')
+    plt.ylabel('Count')
+    plt.show()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### 7.2 Inference for Credit_History
+    """)
+    return
+
+
+@app.cell
+def _(df_cleaned):
+    df_cleaned.Credit_History.value_counts().reset_index()
+    return
+
+
+@app.cell
+def _(df_ch_summ, df_cleaned, plt):
+    df_ch0_summ = df_cleaned.Credit_History.value_counts().reset_index()
+    bars_ch0 = plt.bar(df_ch_summ['Credit_History'], df_ch0_summ['count'])
+
+    # --- Adding Labels (Annotations) to each bar ---
+    for bar_ch0 in bars_ch0:
+        height_ch0 = bar_ch0.get_height()
+        # Add the text label above the bar, slightly offset from the top edge
+        plt.text(
+            bar_ch0.get_x() + bar_ch0.get_width() / 2, # X position (center of the bar)
+            height_ch0 - 30,                       # Y position (slightly above the bar height)
+            f'{int(height_ch0)}',                  # The text to display (the count)
+            ha='center',                       # Horizontal alignment: center
+            va='bottom',color = 'white' )       # Vertical alignment: bottom
+
+    plt.title('Credit History Counts')
+    plt.xlabel('Credit History')
+    plt.ylabel('Count')
+    plt.show()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Credit history is a categorical value and hence converting it to string.
+    """)
+    return
+
+
+@app.cell
+def _(df_cleaned):
+    df_cleaned['Credit_History'] = df_cleaned['Credit_History'].astype('category')
+    def convert_ch(credit_his):
+        if credit_his == 1:
+            return "Yes"
+        else:
+            return "No"
+
+    df_cleaned['Credit_History'] = df_cleaned['Credit_History'].apply(convert_ch)
+    return
+
+
+@app.cell
+def _(df_cleaned):
+    df_cleaned.Credit_History.value_counts().reset_index()
+    return
+
+
+@app.cell
+def _(df_cleaned):
+    df_cleaned.info()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### 7.3 Inference for Property_Area
+    """)
+    return
+
+
+@app.cell
+def _(df_cleaned, plt):
+    df_pa_summ = df_cleaned.Property_Area.value_counts().reset_index()
+    bars_pa = plt.bar(df_pa_summ['Property_Area'], df_pa_summ['count'])
+
+    # --- Adding Labels (Annotations) to each bar ---
+    for bar_pa in bars_pa:
+        height_pa = bar_pa.get_height()
+        # Add the text label above the bar, slightly offset from the top edge
+        plt.text(
+            bar_pa.get_x() + bar_pa.get_width() / 2, # X position (center of the bar)
+            height_pa - 30,                       # Y position (slightly above the bar height)
+            f'{int(height_pa)}',                  # The text to display (the count)
+            ha='center',                       # Horizontal alignment: center
+            va='bottom',color = 'white' )       # Vertical alignment: bottom
+
+    plt.title('Property Area Counts')
+    plt.xlabel('Property Area')
+    plt.ylabel('Count')
+    plt.show()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### 7.4 Inference for Loan_Status
+    """)
+    return
+
+
+@app.cell
+def _(df_cleaned, plt):
+    df_ls_summ = df_cleaned.Loan_Status.value_counts().reset_index()
+    bars_ls = plt.bar(df_ls_summ['Loan_Status'], df_ls_summ['count'])
+
+    # --- Adding Labels (Annotations) to each bar ---
+    for bar_ls in bars_ls:
+        height_ls = bar_ls.get_height()
+        # Add the text label above the bar, slightly offset from the top edge
+        plt.text(
+            bar_ls.get_x() + bar_ls.get_width() / 2, # X position (center of the bar)
+            height_ls - 30,                       # Y position (slightly above the bar height)
+            f'{int(height_ls)}',                  # The text to display (the count)
+            ha='center',                       # Horizontal alignment: center
+            va='bottom',color = 'white' )       # Vertical alignment: bottom
+
+    plt.title('Loan Status Counts')
+    plt.xlabel('Loan Status')
+    plt.ylabel('Count')
+    plt.show()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### Convert the loan status to numeric/binary
+    """)
+    return
+
+
+@app.cell
+def _(df_cleaned):
+    def convert_loanstatus(status):
+        if status == "Y":
+            return 1
+        elif status == "N":
+            return 0
+    df_cleaned['Loan_Status'] = df_cleaned['Loan_Status'].apply(convert_loanstatus)
+    return
+
+
+@app.cell
+def _(df_cleaned):
+    df_cleaned.Loan_Status.value_counts()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 8. Save the data into an intermediate file
     """)
     return
 
