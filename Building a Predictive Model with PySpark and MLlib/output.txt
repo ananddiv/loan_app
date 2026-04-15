@@ -1,4 +1,4 @@
 Logistic Regression Accuracy: 0.7727, F1 Score: 0.7597
-Random Forest Accuracy: 0.7955, F1 Score: 0.7838
+Random Forest Accuracy: 0.7727, F1 Score: 0.7647
 Naive Bayes Accuracy: 0.7273, F1 Score: 0.6316
 Decision Tree Accuracy: 0.7614, F1 Score: 0.7504

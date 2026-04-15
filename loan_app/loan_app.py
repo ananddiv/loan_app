@@ -40,88 +40,68 @@ label_indexer = StringIndexer(inputCol="Loan_Status", outputCol="Loan_Status_Ind
 df = label_indexer.fit(df).transform(df)
 df = df.drop("Loan_Status").withColumnRenamed("Loan_Status_Index", "Loan_Status")
 
-
-# 7. Converting categories to numeric indices
+# 8. Converting categories to numeric indices
 indexer_married = StringIndexer(inputCol="Married", outputCol="indexed_married")
 indexer_credit_history = StringIndexer(inputCol="Credit_History", outputCol="indexed_credit_history")
 indexer_property_area = StringIndexer(inputCol="Property_Area", outputCol="indexed_property_area")
 
-# 8. Combine all the features to one vector
-assembler = VectorAssembler(
-    inputCols=["indexed_married", "indexed_credit_history","indexed_property_area"],
-    outputCol="features")
+indexers = [indexer_married, indexer_credit_history, indexer_property_area]
+# 9. Encode the categorical features
+encoder = OneHotEncoder(inputCols=["indexed_married", "indexed_credit_history","indexed_property_area"],
+                        outputCols=["encoded_married", "encoded_credit_history","encoded_property_area"])
 
+# 10. Combine all the encoded features to one vector
+assembler = VectorAssembler(
+    inputCols=["encoded_married", "encoded_credit_history","encoded_property_area"],
+    outputCol="loan_features")
+
+# 11. Split the data into training and testing sets
 train_data, test_data = df.randomSplit([0.8, 0.2], seed=42)
 
-# 9. Define the Decision Tree Classifier
-decision_tree_classifier = DecisionTreeClassifier(labelCol="Loan_Status", featuresCol="features", seed = 42)
+# 12. Create a pipeline to apply the transformations
+pipeline = Pipeline(stages=[indexer_married, indexer_credit_history, indexer_property_area, encoder, assembler])
+
+# 13. Fit the pipeline to the training data
+base_model = pipeline.fit(train_data)
+print("✅ Pipeline Fitting Complete!")
+
+# 14. Transform the training and testing data using the fitted pipeline
+train_data_transformed = base_model.transform(train_data)
+test_data_transformed = base_model.transform(test_data)
+
+# 15. Initialize the classifiers
+logistic_regression = LogisticRegression(labelCol="Loan_Status", featuresCol="loan_features")
+decision_tree_classifier = DecisionTreeClassifier(labelCol="Loan_Status", featuresCol="loan_features", seed = 42)
+random_forest_classifier = RandomForestClassifier(labelCol="Loan_Status", featuresCol="loan_features", seed = 42)
 
 
-# 10. Create a pipeline to apply the transformations
-pipeline = Pipeline(stages=[indexer_married, indexer_credit_history, indexer_property_area, assembler, decision_tree_classifier])
-
-
-print("\n--- Starting Model Training (Decision Tree Classifier) ---")
+print("\n--- Starting Model Training (Logistic Regression Estimator) ---")
 # Fit the pipeline to the entire dataset (Training phase)
-
-DecisionTreeModel = pipeline.fit(train_data)
+log_reg_model = logistic_regression.fit(train_data_transformed)
 print("✅ Model Training Complete!")
-
-predictions = DecisionTreeModel.transform(test_data)
+log_reg_predictions = log_reg_model.transform(test_data_transformed)    
+print("Model Evaluation Complete!")
 evaluator = MulticlassClassificationEvaluator(labelCol="Loan_Status",
 predictionCol="prediction", metricName="accuracy")
-DecisionTree_accuracy = evaluator.evaluate(predictions)
-print(f"Decision Tree Accuracy: {DecisionTree_accuracy:.4f}")
-
-evaluator = MulticlassClassificationEvaluator(labelCol="Loan_Status",
-predictionCol="prediction", metricName="f1")
-DecisionTree_f1 = evaluator.evaluate(predictions)
-print(f"Decision Tree F1 Score: {DecisionTree_f1:.4f}")
-
-
-print("\n--- Starting Model Training (Random Forest Classifier) ---\n")
-
-random_forest_classifier = RandomForestClassifier(labelCol="Loan_Status", featuresCol="features", seed = 42)
-pipeline = Pipeline(stages=[indexer_married, indexer_credit_history, indexer_property_area, assembler, random_forest_classifier])
-RandomForestModel = pipeline.fit(train_data)
-print("✅ Model Training Complete!")
-
-# --- Model Evaluation and Comparison ---   
-predictions = RandomForestModel.transform(test_data)
-evaluator = MulticlassClassificationEvaluator(labelCol="Loan_Status",
-predictionCol="prediction", metricName="accuracy")
-RandomForest_accuracy = evaluator.evaluate(predictions)
-print(f"Random Forest Accuracy: {RandomForest_accuracy:.4f}")
-
-evaluator = MulticlassClassificationEvaluator(labelCol="Loan_Status",
-predictionCol="prediction", metricName="f1")
-RandomForest_f1 = evaluator.evaluate(predictions)
-print(f"Random Forest F1 Score: {RandomForest_f1:.4f}")
-
-
-print("\n--- Starting Model Training (Logistic Regression Classifier) ---\n")
-
-logistic_regression_classifier = LogisticRegression(labelCol="Loan_Status", featuresCol="features")
-pipeline = Pipeline(stages=[indexer_married, indexer_credit_history, indexer_property_area, assembler, logistic_regression_classifier])
-LogisticRegressionModel = pipeline.fit(train_data)
-print("✅ Model Training Complete!")
-
-# --- Model Evaluation and Comparison ---   
-predictions = LogisticRegressionModel.transform(test_data)
-evaluator = MulticlassClassificationEvaluator(labelCol="Loan_Status",
-predictionCol="prediction", metricName="accuracy")
-LogisticRegression_accuracy = evaluator.evaluate(predictions)
+LogisticRegression_accuracy = evaluator.evaluate(log_reg_predictions)
 print(f"Logistic Regression Accuracy: {LogisticRegression_accuracy:.4f}")
+
+print("\n--- Starting Model Training (Decision Tree Estimator) ---")
+# Fit the pipeline to the entire dataset (Training phase)
+decision_tree_model = decision_tree_classifier.fit(train_data_transformed)
+print("✅ Model Training Complete!")
+dt_predictions = decision_tree_model.transform(test_data_transformed)    
+print("Model Evaluation Complete!")
 evaluator = MulticlassClassificationEvaluator(labelCol="Loan_Status",
-predictionCol="prediction", metricName="f1")
-LogisticRegression_f1 = evaluator.evaluate(predictions)
-print(f"Logistic Regression F1 Score: {LogisticRegression_f1:.4f}")
+predictionCol="prediction", metricName="accuracy")
+DecisionTree_accuracy = evaluator.evaluate(dt_predictions)
+print(f"Decision Tree Accuracy: {DecisionTree_accuracy:.4f}")
 
 
 output_path = os.path.join(base_dir, "model_performance.txt")
 with open(output_path, "w") as f:
     f.write(f"Logistic Regression Classification Accuracy:{LogisticRegression_accuracy:.4f}\n")
-    f.write(f"Random Forest Classification Accuracy:{RandomForest_accuracy:.4f}\n")
+    #f.write(f"Random Forest Classification Accuracy:{RandomForest_accuracy:.4f}\n")
     f.write(f"Decision Tree Classification Accuracy:{DecisionTree_accuracy:.4f}\n")
 # Stop the Spark session
 spark.stop()
