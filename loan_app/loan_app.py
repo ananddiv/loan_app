@@ -101,7 +101,7 @@ print(f"Decision Tree Accuracy: {DecisionTree_accuracy:.4f}")
 output_path = os.path.join(base_dir, "model_performance.txt")
 with open(output_path, "w") as f:
     f.write(f"Logistic Regression Classification Accuracy:{LogisticRegression_accuracy:.4f}\n")
-    f.write(f"Random Forest Classification Accuracy:{RandomForest_accuracy:.4f}\n")
+    #f.write(f"Random Forest Classification Accuracy:{RandomForest_accuracy:.4f}\n")
     f.write(f"Decision Tree Classification Accuracy:{DecisionTree_accuracy:.4f}\n")
 # Stop the Spark session
 spark.stop()
